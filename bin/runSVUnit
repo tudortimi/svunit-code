@@ -57,7 +57,7 @@ sub usage () {
   print "  -f|--filelist <file>     : some verilog file list\n";
   print "  -r|--r_arg <option>      : specify additional runtime options\n";
   print "  -c|--c_arg <option>      : specify additional compile options\n";
-  print "  -U|--uvm                 : run SVUnit with UVM\n";
+  print "  -U|--uvm <option>        : run SVUnit with UVM. w/o option for UVM 1.1, w/ option '1.2' for UVM 1.2\n";
   print "  -o|--out                 : output directory for tmp and simulation files\n";
   print "  -t|--test                : specifies a unit test to run (multiple can be given)\n";
   print "  -m|--mixedsim <vhdlfile> : consolidated file list with VHDL files and command line switches\n";
@@ -87,7 +87,7 @@ GetOptions("l|log=s" => \$logfile,
            "s|sim=s" => \$simulator,
            "d|define=s" => \@defines,
            "f|filelist=s" => \@filelists,
-           "U|uvm" => \$uvm,
+           "U|uvm=s" => \$uvm,
            "r|r_arg=s" => \@simargs,
            "c|c_arg=s" => \@compileargs,
            "o|out=s" => \$outdir,
@@ -134,8 +134,13 @@ if ($simulator eq "modelsim" or $simulator eq "riviera") {
 
 # add the uvm switches if necessary
 if (defined $uvm) {
-  $cmd .= " -uvm" if $simulator eq "irun";
-  $cmd .= " -ntb_opts uvm" if $simulator eq "vcs";
+  if($uvm eq "1.2"){
+    $cmd .= " -uvm -uvmhome CDNS-1.2" if $simulator eq "irun";
+    $cmd .= " -ntb_opts uvm-1.2" if $simulator eq "vcs";
+  } else {
+    $cmd .= " -uvm" if $simulator eq "irun";
+    $cmd .= " -ntb_opts uvm" if $simulator eq "vcs";
+  }
   push @defines, "RUN_SVUNIT_WITH_UVM";
 }
 
